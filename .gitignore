@@ -1,0 +1,12 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Local-only Claude Code settings (the dev server in .claude/ is kept on purpose)
+.claude/settings.local.json
