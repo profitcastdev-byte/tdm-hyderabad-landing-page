@@ -1,10 +1,12 @@
 # The Detailing Mafia — Hyderabad | PPF Landing Page
 
 Static landing page built from `TDM Hyderabad - Landing Page Content Brief.pdf`.
+Live at <https://ppf.tdmhyderabad.in>.
 No build step, no dependencies — open `index.html` or drop the folder on any host.
 
 ```
 index.html
+CNAME                       ← custom domain for GitHub Pages
 assets/
   css/style.css
   js/main.js
@@ -296,39 +298,43 @@ instant check.
 
 ## Hosting
 
-### GitHub Pages (simplest — repo is already there)
+Live at **https://ppf.tdmhyderabad.in** — served by GitHub Pages from this repo.
+The `CNAME` file in the root is what tells Pages to answer on that hostname;
+don't delete it, Pages rewrites it if you change the domain in Settings.
 
-In the repo: **Settings → Pages → Build and deployment → Source: _Deploy from a
-branch_ → Branch: `main` / `(root)` → Save.** First build takes about a minute.
+### One-time setup
 
-```
-https://profitcastdev-byte.github.io/tdm-hyderabad-landing-page/
-```
+**1. DNS** — at whoever manages `tdmhyderabad.in`, add a CNAME record:
 
-Free, HTTPS included, and every `git push` redeploys it. All asset paths are
-relative, so the site works correctly from that `/tdm-hyderabad-landing-page/`
-subpath with no changes.
+| Type | Name / Host | Value |
+|---|---|---|
+| `CNAME` | `ppf` | `profitcastdev-byte.github.io.` |
+
+Point it at the **github.io host**, not at this repo's URL. Propagation is
+usually minutes, occasionally up to a few hours.
+
+**2. GitHub** — Settings → Pages:
+- Source: *Deploy from a branch* → `main` / `(root)`
+- Custom domain: `ppf.tdmhyderabad.in` → Save
+- Wait for the DNS check to go green, then tick **Enforce HTTPS**
+
+The HTTPS certificate is issued automatically and is free, but only once DNS
+resolves — if "Enforce HTTPS" is greyed out, DNS hasn't propagated yet. Come
+back in an hour rather than changing anything.
+
+After that, every `git push` redeploys the live site.
 
 ### Alternatives
 
-| Host | How | URL you get |
+| Host | How | Notes |
 |---|---|---|
-| **Netlify Drop** | Drag the unzipped folder onto [app.netlify.com/drop](https://app.netlify.com/drop) | `random-name.netlify.app` — rename it free |
-| **Cloudflare Pages** | Connect the GitHub repo | `tdm-hyderabad-landing-page.pages.dev` |
-| **Any cPanel host** | Upload the folder contents to `public_html` | the client's own domain |
+| **Netlify** | Drag the folder onto [app.netlify.com/drop](https://app.netlify.com/drop) | Custom domain in the dashboard |
+| **Cloudflare Pages** | Connect this repo | Best option if the DNS is already on Cloudflare |
+| **cPanel host** | Upload folder contents to `public_html` | Whatever hosts `tdmhyderabad.in` today |
 
-### When a custom domain is set up
-
-Four absolute URLs in `index.html` point at the GitHub Pages address and need
-swapping — they're grouped together at the top of the `<head>`:
-
-- `<link rel="canonical">`
-- `og:url`
-- `og:image`
-
-The canonical especially: leaving it pointing at a staging URL tells Google the
-staging copy is the real page. Everything else on the page uses relative paths
-and needs no change.
+If you move off GitHub Pages, the only file-level change is deleting `CNAME`.
+Three absolute URLs in the `<head>` of `index.html` — `canonical`, `og:url`,
+`og:image` — carry the domain; everything else on the page is relative.
 
 ---
 
