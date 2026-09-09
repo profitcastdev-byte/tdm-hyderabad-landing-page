@@ -4,6 +4,28 @@ Static site — no Node, no PHP, no database. Nginx serving a folder is all it n
 
 ---
 
+## 0. What's already on the box
+
+If the VPS already runs other Profitcast sites, or came with a control panel
+template, don't fight it — match what's there. One command reports everything
+that matters:
+
+```bash
+ssh root@YOUR_VPS_IP 'bash -s' < deploy/detect-stack.sh
+```
+
+It prints the OS, web server, any control panel, what's listening on 80/443,
+the existing nginx sites, and whether certbot is installed.
+
+- **Nothing listening on 80/443, no panel** → follow steps 1–5 below as written.
+- **A panel is installed** (CyberPanel, aaPanel, CloudPanel, Plesk, HestiaCP) →
+  skip step 4 and use the panel, see *If the VPS runs a control panel* at the
+  bottom.
+- **Other sites already in `sites-enabled/`** → still fine. Adding this server
+  block is additive; nothing existing is touched.
+
+---
+
 ## 1. DNS
 
 The site was previously pointed at GitHub Pages with a `CNAME` record. Hosting
@@ -114,9 +136,23 @@ custom-config box, but everything else is handled for you.
 
 ---
 
-## Note on GitHub Pages
+## Cutover order (so the page is never down)
 
-`CNAME` in the repo root is a GitHub Pages file and is ignored by nginx — the
-deploy script excludes it. If you're moving fully to the VPS you can delete it
-and turn Pages off in the repo settings, so the two copies can't drift apart or
-compete in search results.
+The domain can only point at one place, so do it in this order:
+
+1. **Leave GitHub Pages serving** while you set up the VPS. If Pages is already
+   live on `ppf.tdmhyderabad.in`, ads keep running throughout.
+2. Get the VPS serving the site over **plain HTTP on its IP first** —
+   `http://YOUR_VPS_IP` should show the page. Nothing has changed publicly yet.
+3. Only then switch DNS: delete the `CNAME` for `ppf`, add the `A` record.
+4. Wait for `dig +short ppf.tdmhyderabad.in` to return the VPS IP, then run
+   certbot. It can't issue a certificate until DNS points at the VPS.
+5. Once HTTPS is live and the page loads, **turn GitHub Pages off** (repo
+   Settings → Pages → Source: None) and delete `CNAME` from the repo.
+
+Step 5 matters: two public copies of the same page can compete in search, and
+they drift apart the moment you edit one. The repo stays the source of truth
+either way — the VPS just becomes what it deploys to.
+
+`CNAME` is a GitHub Pages file, ignored by nginx, and the deploy script excludes
+it — so leaving it in place during the transition breaks nothing.
