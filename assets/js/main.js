@@ -29,6 +29,27 @@ const CLIENT = {
 /* ====================== END OF CLIENT DETAILS BLOCK ====================== */
 
 
+/* ==========================================================================
+   GOOGLE ADS CONVERSION TRACKING
+   The base gtag.js tag is in the <head> of index.html; only the conversion
+   labels live here.
+
+   NOTE: Google hands you the same function name (`gtag_report_conversion`)
+   in every snippet. Pasting both as-is means the second definition silently
+   overwrites the first, and every conversion reports as whichever snippet
+   loaded last. That is why the two labels are kept as data below and fired
+   through one function instead.
+   ========================================================================== */
+const ADS = {
+  id: 'AW-18240961500',
+  conversions: {
+    phone:    { send_to: 'AW-18240961500/-qDzCOvKtcEcENz3-_lD', value: 1.0, currency: 'INR' },
+    whatsapp: { send_to: 'AW-18240961500/ux-ZCKWatsEcENz3-_lD', value: 1.0, currency: 'INR' }
+  }
+};
+/* ==================== END OF CONVERSION TRACKING BLOCK ==================== */
+
+
 (function () {
   'use strict';
 
@@ -298,6 +319,63 @@ const CLIENT = {
   }
 
   /* ----------------------------------------------------------------------
+     10. Google Ads conversion tracking
+         Fires on every phone and WhatsApp link on the page — found by href,
+         so links added later are covered automatically, with no inline
+         onclick handlers to keep in sync.
+     ---------------------------------------------------------------------- */
+  function reportConversion(type, url) {
+    const conv = ADS.conversions[type];
+
+    // gtag missing (ad blocker, offline, tag not loaded yet) — never let
+    // tracking stand between the visitor and the call
+    if (!conv || typeof window.gtag !== 'function') {
+      if (url) window.location = url;
+      return false;
+    }
+
+    let navigated = false;
+    const go = () => {
+      if (navigated) return;
+      navigated = true;
+      if (url) window.location = url;
+    };
+
+    window.gtag('event', 'conversion', Object.assign({}, conv, {
+      event_callback: go
+    }));
+
+    // don't strand the visitor if the callback never comes back
+    if (url) setTimeout(go, 900);
+    return false;
+  }
+
+  // exposed for manual use, e.g. onclick="return gtagReportPhone(this.href)"
+  window.gtagReportPhone    = url => reportConversion('phone', url);
+  window.gtagReportWhatsApp = url => reportConversion('whatsapp', url);
+
+  function initConversionTracking() {
+    document.addEventListener('click', e => {
+      const link = e.target.closest('a[href]');
+      if (!link) return;
+
+      const href = link.getAttribute('href') || '';
+      const type = href.startsWith('tel:')     ? 'phone'
+                 : href.includes('wa.me/')     ? 'whatsapp'
+                 : null;
+      if (!type) return;
+
+      // let ctrl/cmd/middle clicks open in a new tab untouched
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
+      // tel: hands off to the dialer and target=_blank opens a new tab —
+      // neither unloads this page, so the ping has time to send without
+      // us having to intercept navigation
+      reportConversion(type, null);
+    }, true);
+  }
+
+  /* ----------------------------------------------------------------------
      Utilities
      ---------------------------------------------------------------------- */
   const scrollHandlers = [];
@@ -338,6 +416,7 @@ const CLIENT = {
     initFloatingCTAs();
     initHeroParallax();
     initMarquee();
+    initConversionTracking();
 
     // the row is measured in px, so re-measure once the webfont swaps in
     // and whenever the viewport changes width

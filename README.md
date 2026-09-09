@@ -219,6 +219,69 @@ into `assets/img/../fonts/` and add an `@font-face` — the stack already prefer
   triggering layout on every scroll frame.
 - All of it collapses under `prefers-reduced-motion: reduce`.
 
+## Conversion tracking (Google Ads)
+
+Account **AW-18240961500**. The base gtag.js tag sits in the `<head>` of
+`index.html`; the two conversion labels are in the `ADS` block at the top of
+`assets/js/main.js`:
+
+```js
+const ADS = {
+  id: 'AW-18240961500',
+  conversions: {
+    phone:    { send_to: 'AW-18240961500/-qDzCOvKtcEcENz3-_lD', value: 1.0, currency: 'INR' },
+    whatsapp: { send_to: 'AW-18240961500/ux-ZCKWatsEcENz3-_lD', value: 1.0, currency: 'INR' }
+  }
+};
+```
+
+### Why it isn't Google's copy-paste snippet
+
+Google gives you the **same function name — `gtag_report_conversion` — in every
+snippet**. Paste the phone one and the WhatsApp one into the same page and the
+second silently overwrites the first, so *every* click reports as whichever
+loaded last. Both labels are kept as data here and fired through one function,
+which sidesteps that entirely.
+
+### How clicks are wired
+
+One delegated listener matches links by `href`, so **every** phone and WhatsApp
+link is covered and any added later are too — no inline `onclick` to keep in
+sync across 12 buttons:
+
+| Link | Fires |
+|---|---|
+| `href^="tel:"` — 7 of them | phone conversion |
+| `href*="wa.me/"` — 5 of them | WhatsApp conversion |
+| everything else (map, logo, anchors) | nothing |
+
+Two deliberate differences from the stock snippet:
+
+- **Navigation is never blocked.** `tel:` hands off to the dialer and the
+  WhatsApp links are `target="_blank"` — neither unloads the page, so the ping
+  has time to send on its own. Google's version returns `false` and waits on
+  `event_callback` to navigate, which strands the visitor if gtag is blocked.
+- **Ad-blocker safe.** If `gtag` never loads, the click still works normally.
+
+If you ever need the inline form, two helpers are on `window`:
+
+```html
+<a href="tel:..." onclick="return gtagReportPhone(this.href)">Call</a>
+<a href="https://wa.me/..." onclick="return gtagReportWhatsApp(this.href)">WhatsApp</a>
+```
+
+### Verifying it
+
+Verified locally: the tag loads in `<head>`, and clicking each CTA fires the
+right label — all 7 phone links send `-qDzCOvKtcEcENz3-_lD`, both WhatsApp
+buttons send `ux-ZCKWatsEcENz3-_lD`, and the map and logo links fire nothing.
+
+Once live, confirm in Google Ads under **Goals → Conversions** (clicks take a
+few hours to show), or use the **Google Tag Assistant** browser extension for an
+instant check.
+
+---
+
 ## Call & WhatsApp buttons
 
 - **Desktop** — round FABs pinned bottom-left (call, red) and bottom-right
