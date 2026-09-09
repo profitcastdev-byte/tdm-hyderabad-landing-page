@@ -6,6 +6,7 @@ No build step, no dependencies — open `index.html` or drop the folder on any h
 
 ```
 index.html
+deploy/                     ← VPS nginx config + deploy script
 CNAME                       ← custom domain for GitHub Pages
 assets/
   css/style.css
@@ -297,6 +298,11 @@ instant check.
 ---
 
 ## Hosting
+
+> **Moving to the Profitcast KVM VPS?** See [`deploy/RUNBOOK.md`](deploy/RUNBOOK.md)
+> for the DNS change (CNAME → A record), the nginx config, SSL, and the
+> one-command rsync deploy. The GitHub Pages setup below stays valid until you
+> switch — but run one or the other, not both.
 
 Live at **https://ppf.tdmhyderabad.in** — served by GitHub Pages from this repo.
 The `CNAME` file in the root is what tells Pages to answer on that hostname;
