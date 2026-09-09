@@ -294,6 +294,44 @@ instant check.
 
 ---
 
+## Hosting
+
+### GitHub Pages (simplest — repo is already there)
+
+In the repo: **Settings → Pages → Build and deployment → Source: _Deploy from a
+branch_ → Branch: `main` / `(root)` → Save.** First build takes about a minute.
+
+```
+https://profitcastdev-byte.github.io/tdm-hyderabad-landing-page/
+```
+
+Free, HTTPS included, and every `git push` redeploys it. All asset paths are
+relative, so the site works correctly from that `/tdm-hyderabad-landing-page/`
+subpath with no changes.
+
+### Alternatives
+
+| Host | How | URL you get |
+|---|---|---|
+| **Netlify Drop** | Drag the unzipped folder onto [app.netlify.com/drop](https://app.netlify.com/drop) | `random-name.netlify.app` — rename it free |
+| **Cloudflare Pages** | Connect the GitHub repo | `tdm-hyderabad-landing-page.pages.dev` |
+| **Any cPanel host** | Upload the folder contents to `public_html` | the client's own domain |
+
+### When a custom domain is set up
+
+Four absolute URLs in `index.html` point at the GitHub Pages address and need
+swapping — they're grouped together at the top of the `<head>`:
+
+- `<link rel="canonical">`
+- `og:url`
+- `og:image`
+
+The canonical especially: leaving it pointing at a staging URL tells Google the
+staging copy is the real page. Everything else on the page uses relative paths
+and needs no change.
+
+---
+
 ## Local preview
 
 Open `index.html` directly, or run the bundled static server:
