@@ -907,6 +907,9 @@ a.info-card:hover .info-link{ gap: 12px; }
   /* narrow: the copy spans the full width, so the scrim has to darken evenly
      top-to-bottom rather than fading out to the right */
   .hero{ min-height: clamp(520px, 74vh, 660px); }
+  /* the car sits right-of-centre in the banner; a centred crop on a phone
+     lands mostly on the studio floor, so bias the visible window rightwards */
+  .hero-bg img{ object-position: 66% center; }
   .hero-bg::after{
     background:
       linear-gradient(180deg, rgba(0,0,0,.90) 0%, rgba(0,0,0,.80) 42%,

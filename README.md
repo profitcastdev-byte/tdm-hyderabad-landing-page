@@ -28,30 +28,45 @@ and the mobile bar (6 `tel:` links + 6 WhatsApp links).
 
 ```js
 const CLIENT = {
-  phone:            '919700463786',        // digits only, with country code
-  phoneDisplay:     '+91 97004 63786',
   whatsapp:         '919700463786',        // digits only, no '+' or spaces
   whatsappMessage:  "Hi, I'd like a free PPF inspection in Hyderabad. My car model is: ",
   email:            'hello@example.com',   // ← still a placeholder
-  address:          'D.No: 8-2-120/86/9/A/44, Road No. 14,<br>BNR Colony, …',
   hours:            'Monday – Sunday · 10:00 AM – 8:00 PM',
-  mapEmbed:         'https://www.google.com/maps?q=8-2-120…&z=17&output=embed',
-  mapLink:          'https://www.google.com/maps/search/?api=1&query=8-2-120…'
+
+  locations: [
+    { name: 'Banjara Hills', phone: '919700463786',
+      phoneDisplay: '+91 97004 63786', address: 'D.No: 8-2-120/86/9/A/44, …' },
+    { name: 'Madhapur',      phone: '919700493786',
+      phoneDisplay: '+91 97004 93786', address: 'Plot No. 445, Ayyappa Society, …' },
+    { name: 'Kompally',      phone: '919045663786',
+      phoneDisplay: '+91 90456 63786', address: 'Plot No 3 & 22, Dulapally …' }
+  ]
 };
 ```
 
-The map is geocoded from the street address, which lands on Road No. 14 in
-Banjara Hills. If the studio has a **Google Business Profile**, prefer its own
-embed — Google Maps → the business → **Share → Embed a map** → copy the `src`
-URL into `mapEmbed`. That pins the exact premises and shows the business name on
-the pin instead of a street-level match.
+**Studios are the unit of configuration.** Each entry carries a name, a phone
+number and an address; the footer lists all of them, and the map URLs are built
+from the addresses with `encodeURIComponent` at runtime. Nothing is
+hand-encoded, so a link cannot drift out of sync with the address printed next
+to it — and characters like the `&` in "Plot No 3 & 22" encode correctly
+instead of truncating the URL. Adding a fourth branch is four lines.
+
+**The first entry is the primary.** Its address and map fill the Visit section,
+and its phone number is what every main CTA uses — header, hero, floating
+buttons, mobile bar. Reorder the array to change which studio that is. The
+per-branch numbers appear only in the footer list; they carry `data-branch` so
+the page-wide "sync every `tel:` link to the primary" pass skips them.
+
+Maps are geocoded from the street addresses. If a studio has a **Google Business
+Profile**, its own embed is better — Google Maps → the business → **Share →
+Embed a map** — since it pins the exact premises rather than a street-level
+match. Set it as `mapEmbed` on that location to override the derived one.
 
 Still placeholder:
 
 | What | Where |
 |---|---|
 | `email` | `main.js` — `hello@example.com` |
-| `<link rel="canonical">` | `index.html` line 9 — set the real domain |
 
 ---
 
@@ -61,7 +76,7 @@ All artwork is in place — the placeholder SVGs have been deleted.
 
 | Slot | File | Size | Weight |
 |---|---|---|---|
-| Hero banner | `hero-banner.jpg` | 1440 × 900 | 438 KB |
+| Hero banner | `hero-banner.jpg` | 1400 × 900 | 638 KB |
 | The Problem | `problem-swirl-marks.jpg` | 1400 × 1050 | 879 KB |
 | Studio work 1 | `work-full-body-ppf.jpg` | 1200 × 900 | 536 KB |
 | Studio work 2 | `work-luxury-car-protection.jpg` | 1200 × 900 | 539 KB |
@@ -75,7 +90,7 @@ The favicon also serves as the `apple-touch-icon`, and `hero-banner.jpg` is the
 
 ### Two things worth fixing when you get a chance
 
-**1. The hero banner is smaller than the slot wants.** It's 1440 px wide; the
+**1. The hero banner is smaller than the slot wants.** It's 1400 px wide; the
 banner is full-bleed, so on anything wider than a 1440 px screen the browser
 upscales it:
 
@@ -107,12 +122,20 @@ across the whole section, so it's never seen whole:
 | Viewport | Banner area | Visible of the file |
 |---|---|---|
 | 1440 × 900 | 1425 × 702 | full width, middle ~78% of height |
-| 375 × 812 phone | 375 × 601 | **middle ~39% of the width only** |
+| 375 × 812 phone | 375 × 601 | **~40% of the width only** |
 
-On a phone the sides are gone, so **keep the car in the middle third**. The
-current banner works because the car is centred. Also avoid text baked into the
-image — the headline sits on top of it — and prefer a darker shot, since the
-scrim adds its own darkening on top.
+On a phone most of the width is cropped away. The current banner has the car
+**right of centre**, so a centred crop would land on the studio floor — the
+phone breakpoint sets `object-position: 66% center` to bias the visible window
+towards the car. **If you swap the banner, check that line**: a centred subject
+wants `50%`, a left-weighted one wants something below 50%.
+
+Two other things when choosing a banner:
+
+- **No text baked into the image** — the headline sits on top of it.
+- **Prefer a darker, lower-contrast shot.** The scrim adds its own darkening, so
+  a bright image goes muddy under it. The hero copy also carries a text-shadow
+  as a safety net, but it is not a substitute for a suitable photo.
 
 ---
 
