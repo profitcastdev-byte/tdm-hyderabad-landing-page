@@ -6,10 +6,9 @@
    automatically (header, hero, cards, footer, floating buttons, mobile bar).
    ========================================================================== */
 const CLIENT = {
-  // Phone number for tel: links. Digits only, with country code.
-  phone: '919700463786',
-  // Human-readable version shown in the footer.
-  phoneDisplay: '+91 97004 63786',
+  // Phone numbers live per-studio, in `locations` below. The first studio's
+  // number is used for every main CTA automatically.
+  //
   // WhatsApp number. Digits only, with country code, no '+' and no spaces.
   whatsapp: '919700463786',
   // Pre-filled WhatsApp message.
@@ -31,14 +30,20 @@ const CLIENT = {
   locations: [
     {
       name: 'Banjara Hills',
+      phone: '919700463786',
+      phoneDisplay: '+91 97004 63786',
       address: 'D.No: 8-2-120/86/9/A/44, Road No. 14, BNR Colony, Venkat Nagar, Banjara Hills, Hyderabad, Telangana 500034'
     },
     {
       name: 'Madhapur',
+      phone: '919700493786',
+      phoneDisplay: '+91 97004 93786',
       address: 'Plot No. 445, Ayyappa Society, VIP Hills, Jaihind Enclave, Madhapur, Hyderabad, Telangana 500081'
     },
     {
       name: 'Kompally',
+      phone: '919045663786',
+      phoneDisplay: '+91 90456 63786',
       address: 'Plot No 3 & 22, Dulapally Cross Roads, beside Ktm Show Room, Kompally, Hyderabad, Telangana 500014'
     }
   ]
@@ -50,9 +55,15 @@ CLIENT.locations.forEach(loc => {
   loc.mapLink  = 'https://www.google.com/maps/search/?api=1&query=' + q;
   loc.mapEmbed = 'https://www.google.com/maps?q=' + q + '&z=17&output=embed';
 });
-CLIENT.address  = CLIENT.locations[0].address;
-CLIENT.mapLink  = CLIENT.locations[0].mapLink;
-CLIENT.mapEmbed = CLIENT.locations[0].mapEmbed;
+// The first studio is the primary: its address and map fill the Visit
+// section, and its number is the one behind every main CTA (header, hero,
+// floating buttons, mobile bar). The per-branch numbers appear only in the
+// footer list. Change the order of `locations` to change which is primary.
+CLIENT.address      = CLIENT.locations[0].address;
+CLIENT.mapLink      = CLIENT.locations[0].mapLink;
+CLIENT.mapEmbed     = CLIENT.locations[0].mapEmbed;
+CLIENT.phone        = CLIENT.locations[0].phone;
+CLIENT.phoneDisplay = CLIENT.locations[0].phoneDisplay;
 /* ====================== END OF CLIENT DETAILS BLOCK ====================== */
 
 
@@ -93,15 +104,13 @@ const ADS = {
     const waHref  = 'https://wa.me/' + CLIENT.whatsapp +
                     '?text=' + encodeURIComponent(CLIENT.whatsappMessage);
 
-    $$('a[href^="tel:"]').forEach(a => { a.href = telHref; });
+    // :not([data-branch]) matters — the footer's per-studio numbers are also
+    // tel: links, and without this they'd all be overwritten with the primary
+    $$('a[href^="tel:"]:not([data-branch])').forEach(a => { a.href = telHref; });
     $$('a[href*="wa.me/"]').forEach(a => { a.href = waHref; });
     $$('a[href^="mailto:"]').forEach(a => { a.href = 'mailto:' + CLIENT.email; });
 
-    const footerPhone = $('.footer-col a[data-cta="footer-phone"]');
-    if (footerPhone) footerPhone.textContent = CLIENT.phoneDisplay;
-
-    const addr = $('.footer-addr');
-    if (addr) addr.innerHTML = CLIENT.address;
+    renderBranchPhones();
 
     // Visit / map section
     const visitPhone = $('[data-visit="phone"]');
@@ -137,6 +146,34 @@ const ADS = {
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/>' +
     '<circle cx="12" cy="10" r="3"/></svg>';
+
+  function renderBranchPhones() {
+    const list = $('[data-phones]');
+    if (!list || !Array.isArray(CLIENT.locations)) return;
+
+    list.innerHTML = '';
+    CLIENT.locations.forEach(loc => {
+      if (!loc.phone) return;
+
+      const li = document.createElement('li');
+      const a  = document.createElement('a');
+      a.href   = 'tel:+' + loc.phone;
+      a.setAttribute('data-branch', '');          // keep it off the blanket rewrite
+      a.setAttribute('data-cta', 'footer-phone');
+
+      const name = document.createElement('span');
+      name.className = 'ph-name';
+      name.textContent = loc.name;
+
+      const num = document.createElement('span');
+      num.className = 'ph-num';
+      num.textContent = loc.phoneDisplay || ('+' + loc.phone);
+
+      a.append(name, num);
+      li.append(a);
+      list.append(li);
+    });
+  }
 
   function renderLocations() {
     const list = $('[data-locations]');
