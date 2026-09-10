@@ -112,13 +112,6 @@ const ADS = {
 
     renderBranchPhones();
 
-    // Visit / map section
-    const visitPhone = $('[data-visit="phone"]');
-    if (visitPhone) visitPhone.textContent = CLIENT.phoneDisplay;
-
-    const visitAddr = $('[data-visit="address"]');
-    if (visitAddr) visitAddr.innerHTML = CLIENT.address.replace(/<br\s*\/?>/gi, ' ');
-
     const visitHours = $('[data-visit="hours"]');
     if (visitHours) visitHours.textContent = CLIENT.hours;
 
@@ -127,11 +120,7 @@ const ADS = {
 
     renderLocations();
 
-    // only reassign if it differs, so the iframe isn't fetched twice
-    const map = $('[data-visit="map"]');
-    if (map && CLIENT.mapEmbed && map.getAttribute('src') !== CLIENT.mapEmbed) {
-      map.src = CLIENT.mapEmbed;
-    }
+    initVisitSwitcher();
 
     const year = $('#year');
     if (year) year.textContent = new Date().getFullYear();
@@ -146,6 +135,76 @@ const ADS = {
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/>' +
     '<circle cx="12" cy="10" r="3"/></svg>';
+
+  /* ----------------------------------------------------------------------
+     1c. Find Us — studio switcher.
+         Tabs across the top swap the contact details and the map beneath.
+         One iframe rather than three: each Google Maps embed pulls ~1 MB of
+         script, so three of them would cost more than the rest of the page.
+     ---------------------------------------------------------------------- */
+  function initVisitSwitcher() {
+    const tabs = $('[data-visit-tabs]');
+    const locs = CLIENT.locations;
+    if (!tabs || !Array.isArray(locs) || !locs.length) return;
+
+    const phone  = $('[data-visit="phone"]');
+    const addr   = $('[data-visit="address"]');
+    const map    = $('[data-visit="map"]');
+    const call   = $('[data-visit-call]');
+    const dirs   = $('[data-visit-directions]');
+    const nameEl = $('[data-visit-name]');
+
+    // rebuild the tab row from config
+    tabs.innerHTML = '';
+    const buttons = locs.map((loc, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'visit-tab' + (i === 0 ? ' is-active' : '');
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(i === 0));
+      b.textContent = loc.name;
+      b.addEventListener('click', () => select(i));
+      tabs.append(b);
+      return b;
+    });
+
+    function select(i) {
+      const loc = locs[i];
+      if (!loc) return;
+
+      buttons.forEach((b, n) => {
+        b.classList.toggle('is-active', n === i);
+        b.setAttribute('aria-selected', String(n === i));
+      });
+
+      if (nameEl) nameEl.textContent = loc.name;
+      if (phone)  phone.textContent  = loc.phoneDisplay || ('+' + loc.phone);
+      if (addr)   addr.textContent   = loc.address;
+      if (call)   call.href          = 'tel:+' + loc.phone;
+      if (dirs)   dirs.href          = loc.mapLink;
+
+      // reassigning src refetches the embed, so only do it on a real change
+      if (map && map.getAttribute('src') !== loc.mapEmbed) {
+        map.src = loc.mapEmbed;
+        map.title = 'Map of the ' + loc.name + ' studio';
+      }
+    }
+
+    // left/right arrows move between tabs, as a tablist should
+    tabs.addEventListener('keydown', e => {
+      const i = buttons.indexOf(document.activeElement);
+      if (i < 0) return;
+      let next = null;
+      if (e.key === 'ArrowRight') next = (i + 1) % buttons.length;
+      if (e.key === 'ArrowLeft')  next = (i - 1 + buttons.length) % buttons.length;
+      if (next === null) return;
+      e.preventDefault();
+      buttons[next].focus();
+      select(next);
+    });
+
+    select(0);
+  }
 
   function renderBranchPhones() {
     const list = $('[data-phones]');

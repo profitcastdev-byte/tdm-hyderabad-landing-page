@@ -601,6 +601,29 @@ button{ font: inherit; color: inherit; cursor: pointer; }
    VISIT / MAP
    ========================================================================== */
 .visit{ background: var(--bg); }
+
+/* studio switcher */
+.visit-tabs{
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 22px;
+}
+.visit-tab{
+  position: relative;
+  padding: 12px 22px;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--bg-alt); color: var(--fg-muted);
+  font-size: 14.5px; font-weight: 600; letter-spacing: .01em;
+  white-space: nowrap;
+  transition: color .3s var(--ease), border-color .3s var(--ease),
+              background-color .3s var(--ease), transform .3s var(--ease-out);
+}
+.visit-tab:hover{ color: var(--fg-strong); border-color: var(--border-strong); }
+.visit-tab.is-active{
+  background: var(--red); border-color: var(--red); color: #fff;
+  box-shadow: 0 8px 22px -10px var(--red-glow);
+}
+.visit-tab.is-active:hover{ color: #fff; }
+
 .visit-grid{
   display: grid; grid-template-columns: .82fr 1.18fr;
   gap: clamp(20px, 3vw, 36px); align-items: stretch;

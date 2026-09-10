@@ -422,26 +422,35 @@
   <div class="container">
     <header class="section-head">
       <p class="kicker reveal">Find Us</p>
-      <h2 class="reveal" data-delay="1">Visit our Hyderabad studio</h2>
+      <h2 class="reveal" data-delay="1">Three studios across Hyderabad</h2>
     </header>
 
-    <div class="visit-grid">
+    <!-- Studio switcher. main.js rebuilds the tabs and panel from
+         CLIENT.locations; the markup below is the first studio, complete and
+         correct, so the section still works if the script never loads. -->
+    <div class="visit-tabs reveal" role="tablist" aria-label="Choose a studio" data-visit-tabs>
+      <button class="visit-tab is-active" role="tab" aria-selected="true" type="button">Banjara Hills</button>
+      <button class="visit-tab" role="tab" aria-selected="false" type="button">Madhapur</button>
+      <button class="visit-tab" role="tab" aria-selected="false" type="button">Kompally</button>
+    </div>
+
+    <div class="visit-grid reveal" data-delay="1">
       <div class="visit-info">
 
-        <a class="info-card reveal" href="tel:+919700463786" data-cta="visit-call">
+        <a class="info-card" href="tel:+919700463786" data-visit-call data-cta="visit-call">
           <span class="info-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </span>
           <div class="info-body">
-            <h3>Call us</h3>
+            <h3>Call <span data-visit-name>Banjara Hills</span></h3>
             <p class="info-value" data-visit="phone">+91 97004 63786</p>
             <span class="info-note">Free inspection, written quote before any work begins.</span>
           </div>
         </a>
 
-        <a class="info-card reveal" data-delay="1" data-maplink
-           href="https://www.google.com/maps/search/?api=1&amp;query=8-2-120%2F86%2F9%2FA%2F44%2C%20Road%20No.%2014%2C%20BNR%20Colony%2C%20Venkat%20Nagar%2C%20Banjara%20Hills%2C%20Hyderabad%2C%20Telangana%20500034"
-           target="_blank" rel="noopener" data-cta="visit-directions">
+        <a class="info-card" data-visit-directions data-cta="visit-directions"
+           href="https://www.google.com/maps/search/?api=1&amp;query=D.No%3A%208-2-120%2F86%2F9%2FA%2F44%2C%20Road%20No.%2014%2C%20BNR%20Colony%2C%20Venkat%20Nagar%2C%20Banjara%20Hills%2C%20Hyderabad%2C%20Telangana%20500034"
+           target="_blank" rel="noopener">
           <span class="info-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </span>
@@ -455,24 +464,24 @@
           </div>
         </a>
 
-        <div class="info-card reveal" data-delay="2">
+        <div class="info-card">
           <span class="info-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </span>
           <div class="info-body">
             <h3>Timing</h3>
-            <p class="info-value" data-visit="hours">Monday – Sunday &middot; 10:00 AM – 8:00 PM</p>
-            <span class="info-note">Walk in, or book your slot on WhatsApp first.</span>
+            <p class="info-value" data-visit="hours">Monday &ndash; Sunday &middot; 10:00 AM &ndash; 8:00 PM</p>
+            <span class="info-note">Same hours at all three studios.</span>
           </div>
         </div>
 
       </div>
 
-      <div class="visit-map reveal" data-delay="1">
+      <div class="visit-map">
         <iframe
           data-visit="map"
-          src="https://www.google.com/maps?q=8-2-120%2F86%2F9%2FA%2F44%2C%20Road%20No.%2014%2C%20BNR%20Colony%2C%20Venkat%20Nagar%2C%20Banjara%20Hills%2C%20Hyderabad%2C%20Telangana%20500034&amp;z=17&amp;output=embed"
-          title="Map showing The Detailing Mafia Hyderabad studio, Road No. 14, Banjara Hills"
+          src="https://www.google.com/maps?q=D.No%3A%208-2-120%2F86%2F9%2FA%2F44%2C%20Road%20No.%2014%2C%20BNR%20Colony%2C%20Venkat%20Nagar%2C%20Banjara%20Hills%2C%20Hyderabad%2C%20Telangana%20500034&amp;z=17&amp;output=embed"
+          title="Map of the Banjara Hills studio"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           allowfullscreen></iframe>
