@@ -16,16 +16,43 @@ const CLIENT = {
   whatsappMessage: "Hi, I'd like a free PPF inspection in Hyderabad. My car model is: ",
   // Contact email.
   email: 'hello@example.com',
-  // Studio address (use <br> for line breaks).
-  address: 'D.No: 8-2-120/86/9/A/44, Road No. 14,<br>BNR Colony, Venkat Nagar, Banjara Hills,<br>Hyderabad, Telangana 500034',
   // Opening hours, shown in the Visit section.
   hours: 'Monday – Sunday · 10:00 AM – 8:00 PM',
-  // Map embed for the Visit section.
-  // Google Maps -> find the studio -> Share -> Embed a map -> copy the src URL.
-  mapEmbed: 'https://www.google.com/maps?q=8-2-120%2F86%2F9%2FA%2F44%2C%20Road%20No.%2014%2C%20BNR%20Colony%2C%20Venkat%20Nagar%2C%20Banjara%20Hills%2C%20Hyderabad%2C%20Telangana%20500034&z=17&output=embed',
-  // Where the "Get directions" link goes.
-  mapLink: 'https://www.google.com/maps/search/?api=1&query=8-2-120%2F86%2F9%2FA%2F44%2C%20Road%20No.%2014%2C%20BNR%20Colony%2C%20Venkat%20Nagar%2C%20Banjara%20Hills%2C%20Hyderabad%2C%20Telangana%20500034'
+
+  // ------------------------------------------------------------------
+  // STUDIOS — the footer lists all of these, each linking to its own
+  // Google Maps pin. The FIRST one is the primary: its address and map
+  // drive the Visit section higher up the page.
+  //
+  // Write addresses as plain text. Map URLs are built from them at
+  // runtime, so there is nothing to URL-encode by hand and the link can
+  // never drift out of sync with the address shown next to it.
+  // ------------------------------------------------------------------
+  locations: [
+    {
+      name: 'Banjara Hills',
+      address: 'D.No: 8-2-120/86/9/A/44, Road No. 14, BNR Colony, Venkat Nagar, Banjara Hills, Hyderabad, Telangana 500034'
+    },
+    {
+      name: 'Madhapur',
+      address: 'Plot No. 445, Ayyappa Society, VIP Hills, Jaihind Enclave, Madhapur, Hyderabad, Telangana 500081'
+    },
+    {
+      name: 'Kompally',
+      address: 'Plot No 3 & 22, Dulapally Cross Roads, beside Ktm Show Room, Kompally, Hyderabad, Telangana 500014'
+    }
+  ]
 };
+
+// Map URLs derived from the addresses above — don't edit these.
+CLIENT.locations.forEach(loc => {
+  const q = encodeURIComponent(loc.address);
+  loc.mapLink  = 'https://www.google.com/maps/search/?api=1&query=' + q;
+  loc.mapEmbed = 'https://www.google.com/maps?q=' + q + '&z=17&output=embed';
+});
+CLIENT.address  = CLIENT.locations[0].address;
+CLIENT.mapLink  = CLIENT.locations[0].mapLink;
+CLIENT.mapEmbed = CLIENT.locations[0].mapEmbed;
 /* ====================== END OF CLIENT DETAILS BLOCK ====================== */
 
 
@@ -89,6 +116,8 @@ const ADS = {
     // every address block on the page opens the map
     $$('[data-maplink]').forEach(a => { a.href = CLIENT.mapLink; });
 
+    renderLocations();
+
     // only reassign if it differs, so the iframe isn't fetched twice
     const map = $('[data-visit="map"]');
     if (map && CLIENT.mapEmbed && map.getAttribute('src') !== CLIENT.mapEmbed) {
@@ -97,6 +126,49 @@ const ADS = {
 
     const year = $('#year');
     if (year) year.textContent = new Date().getFullYear();
+  }
+
+  /* ----------------------------------------------------------------------
+     1b. Footer studio list, rebuilt from CLIENT.locations so adding or
+         editing a branch is a one-line change in the config block.
+     ---------------------------------------------------------------------- */
+  const PIN_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/>' +
+    '<circle cx="12" cy="10" r="3"/></svg>';
+
+  function renderLocations() {
+    const list = $('[data-locations]');
+    if (!list || !Array.isArray(CLIENT.locations) || !CLIENT.locations.length) return;
+
+    // textContent, not innerHTML, for the address — it comes from config and
+    // may contain characters like the "&" in "Plot No 3 & 22"
+    list.innerHTML = '';
+    CLIENT.locations.forEach(loc => {
+      const li   = document.createElement('li');
+      li.className = 'loc';
+
+      const a    = document.createElement('a');
+      a.href     = loc.mapLink;
+      a.target   = '_blank';
+      a.rel      = 'noopener';
+      a.setAttribute('data-cta', 'footer-location');
+      a.title    = 'Open ' + loc.name + ' in Google Maps';
+
+      const name = document.createElement('span');
+      name.className = 'loc-name';
+      name.textContent = loc.name + ' ';
+      name.insertAdjacentHTML('beforeend', PIN_SVG);
+
+      const addr = document.createElement('span');
+      addr.className = 'loc-addr';
+      addr.textContent = loc.address;
+
+      a.append(name, addr);
+      li.append(a);
+      list.append(li);
+    });
   }
 
   /* ----------------------------------------------------------------------

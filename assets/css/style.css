@@ -710,11 +710,48 @@ a.info-card:hover .info-link{ gap: 12px; }
   transition: color .25s var(--ease), padding-left .25s var(--ease-out);
 }
 .footer-col a:hover{ color: var(--red-ink); padding-left:5px; }
-.footer-addr{
-  display: block; font-size:14px; color: var(--fg-faint); margin-top:12px;
+/* --- studios ------------------------------------------------------------ */
+.footer-locations{
+  border-top: 1px solid var(--border);
+  padding-block: 34px 8px;
+}
+.footer-locations h4{
+  font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+  color: var(--fg-strong); margin-bottom:20px; font-weight:600;
+}
+.loc-list{
+  display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px 28px;
+}
+.loc a{
+  display:flex; flex-direction:column; gap:7px;
+  height:100%;
+  padding:16px 18px;
+  border:1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-alt);
+  transition: border-color .3s var(--ease), background-color .3s var(--ease),
+              transform .3s var(--ease-out);
+}
+.loc a:hover{
+  border-color: rgba(255,0,0,.42);
+  background: var(--bg-alt-2);
+  transform: translateY(-3px);
+}
+.loc-name{
+  display:flex; align-items:center; gap:8px;
+  font-size:14.5px; font-weight:600; color: var(--fg-strong);
   transition: color .25s var(--ease);
 }
-.footer-addr:hover{ color: var(--red); }
+.loc-name svg{
+  width:15px; height:15px; flex:none; color: var(--red);
+  transition: transform .35s var(--ease-out);
+}
+.loc a:hover .loc-name{ color: var(--red); }
+.loc a:hover .loc-name svg{ transform: translateY(-2px) scale(1.12); }
+.loc-addr{
+  font-size:13.5px; line-height:1.55; color: var(--fg-faint);
+  transition: color .25s var(--ease);
+}
+.loc a:hover .loc-addr{ color: var(--fg-muted); }
 .footer-bottom{
   display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
   border-top:1px solid var(--border); padding-block:22px 26px;
@@ -867,6 +904,7 @@ a.info-card:hover .info-link{ gap: 12px; }
   .visit-grid{ grid-template-columns: 1fr; }
   .visit-map{ min-height: 320px; order: -1; }
   .footer-inner{ grid-template-columns: 1.4fr auto; gap: 32px 40px; }
+  .loc-list{ grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 
 @media (max-width: 640px){
@@ -885,6 +923,7 @@ a.info-card:hover .info-link{ gap: 12px; }
   .hero-cta .btn{ width:100%; }
   .cta-inner .hero-cta .btn{ width:100%; }
   .footer-inner{ grid-template-columns: 1fr; }
+  .loc-list{ grid-template-columns: 1fr; }
   .footer-bottom{ flex-direction:column; gap:8px; }
 
   /* swap desktop FABs for the persistent bottom bar */
